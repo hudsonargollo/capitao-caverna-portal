@@ -1,5 +1,5 @@
 import HeroHeader from "@/components/HeroHeader";
-import SubmissionForm from "@/components/SubmissionForm";
+import SubmissionFormFixed from "@/components/SubmissionFormFixed";
 
 const Index = () => {
   return (
@@ -13,7 +13,7 @@ const Index = () => {
       <main className="container mx-auto max-w-3xl pb-16 pt-8">
         <section aria-labelledby="envio" className="animate-enter">
           <h2 id="envio" className="sr-only">Envio de Perguntas</h2>
-          <SubmissionForm />
+          <SubmissionFormFixed />
         </section>
       </main>
     </div>
