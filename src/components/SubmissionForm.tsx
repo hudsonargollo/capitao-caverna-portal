@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const ACCEPT = "video/*,audio/*";
 
@@ -10,7 +11,18 @@ const SubmissionForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [drag, setDrag] = useState(false);
+  const [previewURL, setPreviewURL] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewURL(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreviewURL(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -34,6 +46,9 @@ const SubmissionForm = () => {
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  const isVideo = file?.type.startsWith("video/")
+  const isAudio = file?.type.startsWith("audio/")
+
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div
@@ -43,25 +58,32 @@ const SubmissionForm = () => {
         }}
         onDragLeave={() => setDrag(false)}
         onDrop={onDrop}
-        className={
-          `glass relative rounded-xl p-6 sm:p-8 transition-colors ${
-            drag ? "ring-2 ring-accent/70" : "ring-1 ring-border"
-          }`
-        }
+        className={`relative rounded-2xl p-6 sm:p-8 transition-colors ${drag ? "ring-2 ring-accent/70" : "ring-1 ring-border"}`}
       >
         <label htmlFor="file" className="block cursor-pointer">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border border-accent/30 bg-background/40 text-accent-foreground shadow-[0_0_24px_hsl(var(--accent)/0.2)]">
-              {/* Decorative waveform icon using SVG to avoid extra deps */}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
-                <path d="M3 12h2m2 0h2m2 0h2m2 0h2m2 0h2" strokeLinecap="round" />
-              </svg>
+          <AspectRatio ratio={16/9}>
+            <div className="neon-frame group h-full w-full overflow-hidden rounded-xl">
+              {previewURL ? (
+                isVideo ? (
+                  <video src={previewURL} controls className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-background/40">
+                    <audio src={previewURL} controls className="w-11/12" />
+                  </div>
+                )
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center text-center">
+                  <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border border-accent/30 bg-background/60 text-accent-foreground shadow-[0_0_24px_hsl(var(--accent)/0.2)]">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-7 w-7">
+                      <path d="M3 12h2m2 0h2m2 0h2m2 0h2m2 0h2" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <p className="text-base font-medium">Arraste seu vídeo/áudio aqui</p>
+                  <p className="mt-1 text-sm text-muted-foreground">ou clique para selecionar. MP4, MOV, MP3, WAV.</p>
+                </div>
+              )}
             </div>
-            <p className="text-base font-medium">Envie um arquivo de vídeo ou áudio</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Arraste e solte aqui, ou clique para selecionar. Formatos: MP4, MOV, MP3, WAV.
-            </p>
-          </div>
+          </AspectRatio>
           <input
             id="file"
             ref={inputRef}
@@ -91,7 +113,7 @@ const SubmissionForm = () => {
           </Label>
         </div>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-center">
           <Button
             type="submit"
             variant="neon"

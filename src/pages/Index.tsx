@@ -4,8 +4,9 @@ import SubmissionForm from "@/components/SubmissionForm";
 const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 -z-30 bg-studio" aria-hidden="true" />
+      <div className="absolute inset-0 -z-20 bg-gradient-to-b from-background/60 via-background/70 to-background" aria-hidden="true" />
       <div className="absolute inset-0 -z-10 cave-aurora" aria-hidden="true" />
-      <div className="absolute inset-0 -z-20 bg-background" aria-hidden="true" />
 
       <HeroHeader />
 
